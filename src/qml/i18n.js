@@ -4,6 +4,76 @@
 // Bez ".pragma library", żeby mieć dostęp do obiektu „backend”.
 
 var dict = {
+ "Odtwórz": {
+  "en": "Play",
+  "de": "Abspielen",
+  "es": "Reproducir",
+  "it": "Riproduci",
+  "fr": "Lire"
+ },
+ "Odtwórz jako następny": {
+  "en": "Play next",
+  "de": "Als Nächstes abspielen",
+  "es": "Reproducir a continuación",
+  "it": "Riproduci come successivo",
+  "fr": "Lire ensuite"
+ },
+ "Dodaj do kolejki": {
+  "en": "Add to queue",
+  "de": "Zur Warteschlange hinzufügen",
+  "es": "Añadir a la cola",
+  "it": "Aggiungi alla coda",
+  "fr": "Ajouter à la file"
+ },
+ "Szczegóły": {
+  "en": "Details",
+  "de": "Details",
+  "es": "Detalles",
+  "it": "Dettagli",
+  "fr": "Détails"
+ },
+ "gra": {
+  "en": "playing",
+  "de": "spielt",
+  "es": "reproduciendo",
+  "it": "in riproduzione",
+  "fr": "en lecture"
+ },
+ "wyłączony": {
+  "en": "off",
+  "de": "aus",
+  "es": "apagado",
+  "it": "spento",
+  "fr": "éteint"
+ },
+ "zatrzymany": {
+  "en": "stopped",
+  "de": "gestoppt",
+  "es": "detenido",
+  "it": "fermo",
+  "fr": "arrêté"
+ },
+ "niepołączony": {
+  "en": "not connected",
+  "de": "nicht verbunden",
+  "es": "no conectado",
+  "it": "non connesso",
+  "fr": "non connecté"
+ },
+ "ten telefon": {
+  "en": "this phone",
+  "de": "dieses Telefon",
+  "es": "este teléfono",
+  "it": "questo telefono",
+  "fr": "ce téléphone"
+ },
+ "Brak odtwarzaczy": {
+  "en": "No players",
+  "de": "Keine Player",
+  "es": "No hay reproductores",
+  "it": "Nessun lettore",
+  "fr": "Aucun lecteur"
+ },
  "O programie": {
   "en": "About",
   "de": "Über",

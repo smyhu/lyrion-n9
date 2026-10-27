@@ -42,6 +42,7 @@ Page {
             value: String(o.value === undefined ? "" : o.value),
             arrow: o.arrow ? true : false,
             playable: o.playable ? true : false,
+            details: o.details ? true : false,
             section: list.sections ? Lyrion.sectionOf(o.title) : ""
         });
     }
@@ -189,7 +190,7 @@ Page {
                 for (i = 0; i < l.length; i++) {
                     if (!l[i].cmd)
                         continue;
-                    add({ title: l[i].name, image: Lyrion.imageUrl(l[i].icon), showImage: true,
+                    add({ title: l[i].name, image: Lyrion.imageUrl(l[i].icon, 80), showImage: true,
                           action: "opmlroot", value: l[i].cmd, arrow: true });
                 }
                 done(res);
@@ -216,10 +217,15 @@ Page {
                 var it = l[i];
                 var isSearch = it.type === "search";
                 var deeper = it.hasitems == 1 || isSearch;
+                // Pojedynczy utwór lub stacja (np. SoundCloud): stuknięcie odtwarza,
+                // przytrzymanie otwiera menu. Album/lista (type "playlist") się otwiera.
+                var single = it.isaudio == 1 && !isSearch && it.type !== "playlist" &&
+                             it.type !== "link" && it.type !== "opml";
                 add({ title: it.name || it.title || "",
-                      image: Lyrion.imageUrl(it.image || it.icon || ""), showImage: anyImage,
-                      action: isSearch ? "opmlsearch" : (deeper ? "opml" : (it.isaudio == 1 ? "opmlplay" : "")),
-                      value: it.id, arrow: deeper && it.isaudio != 1, playable: it.isaudio == 1 });
+                      image: Lyrion.imageUrl(it.image || it.icon || "", 80), showImage: anyImage,
+                      action: isSearch ? "opmlsearch" : (single || !deeper ? (it.isaudio == 1 ? "opmlplay" : "") : "opml"),
+                      value: it.id, arrow: deeper && it.isaudio != 1, playable: it.isaudio == 1,
+                      details: single && deeper });
             }
             done(res, list.kind === "favorites" ? T.t("Brak ulubionych. Dodaj je gwiazdką na ekranie odtwarzania.") : "");
         });
@@ -265,7 +271,8 @@ Page {
             appWindow.openList({ kind: "albums", heading: row.title, param: "year:" + v });
     }
 
-    // Przytrzymanie palca: odtwórz całość (album, lista, folder).
+    // Przytrzymanie palca: album, lista, folder -> odtwórz całość;
+    // pozycja z usługi (SoundCloud, radio) -> menu jak w Lyrion.
     function hold(row) {
         if (!row.playable)
             return;
@@ -275,8 +282,34 @@ Page {
             play(["playlistcontrol", "cmd:load", "playlist_id:" + row.value]);
         else if (row.action === "folder")
             play(["playlistcontrol", "cmd:load", "folder_id:" + row.value]);
-        else if (list.cmd !== "")
-            play([list.cmd, "playlist", "play", "item_id:" + row.value], undefined, row.image);
+        else if (list.cmd !== "") {
+            itemMenu.row = { title: row.title, value: row.value, image: row.image, details: row.details };
+            itemMenu.open();
+        }
+    }
+
+    ContextMenu {
+        id: itemMenu
+        property variant row: ({})
+        MenuLayout {
+            MenuItem {
+                text: T.t("Odtwórz")
+                onClicked: list.play([list.cmd, "playlist", "play", "item_id:" + itemMenu.row.value], undefined, itemMenu.row.image)
+            }
+            MenuItem {
+                text: T.t("Odtwórz jako następny")
+                onClicked: appWindow.call([list.cmd, "playlist", "insert", "item_id:" + itemMenu.row.value])
+            }
+            MenuItem {
+                text: T.t("Dodaj do kolejki")
+                onClicked: appWindow.call([list.cmd, "playlist", "add", "item_id:" + itemMenu.row.value])
+            }
+            MenuItem {
+                text: T.t("Szczegóły")
+                visible: itemMenu.row.details === true
+                onClicked: appWindow.openList({ kind: "opml", heading: itemMenu.row.title, cmd: list.cmd, itemId: itemMenu.row.value })
+            }
+        }
     }
 
     function shufflePlay() {

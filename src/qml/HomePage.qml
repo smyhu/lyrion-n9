@@ -25,7 +25,16 @@ Page {
         });
     }
 
-    Component.onCompleted: loadRecent()
+    // Strona startowa powstaje przed resztą okna, więc adres serwera
+    // ustawiamy tu sami; pustą mozaikę wczytujemy ponownie przy powrocie.
+    Component.onCompleted: {
+        appWindow.applyServer();
+        loadRecent();
+    }
+    onStatusChanged: {
+        if (status === PageStatus.Active && recent.count === 0)
+            loadRecent();
+    }
 
     Connections {
         target: backend
@@ -56,6 +65,8 @@ Page {
             Image {
                 anchors.fill: parent
                 source: n < recent.count ? recent.get(n).cover : ""
+                sourceSize.width: parent.width
+                sourceSize.height: parent.height
                 fillMode: Image.PreserveAspectCrop
                 clip: true
                 asynchronous: true

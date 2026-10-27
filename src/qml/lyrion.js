@@ -30,15 +30,49 @@ function request(playerId, cmd, callback) {
     xhr.send(JSON.stringify({ id: 1, method: "slim.request", params: [playerId, cmd] }));
 }
 
-function imageUrl(path) {
+function isConfigured() {
+    return baseUrl !== "";
+}
+
+// Adres obrazu z serwera. Obrazy z internetu (np. okładki SoundCloud) idą
+// przez /imageproxy serwera ze zmniejszeniem: bez rozmiaru serwer odsyła
+// przekierowanie na oryginał po HTTPS, którego Qt w aplikacji nie otworzy.
+function imageUrl(path, size) {
     if (!path)
         return "";
     path = String(path);
-    if (path.indexOf("http") === 0)
-        return path;
+    size = size || 160;
+    if (path.indexOf("http") === 0) {
+        if (path.indexOf(baseUrl + "/") === 0)
+            path = path.substring(baseUrl.length);
+        else
+            path = "/imageproxy/" + path + "/image.jpg";
+    }
     if (path.charAt(0) !== "/")
         path = "/" + path;
-    return baseUrl + path;
+    return baseUrl + sizedProxy(plainProxy(path), size);
+}
+
+// Qt w N9 koduje „%” w adresie drugi raz (%3A -> %253A) i serwer dostaje
+// zepsuty adres. Dlatego adres obrazu w /imageproxy/ podajemy niezakodowany
+// (serwer przyjmuje obie postaci).
+function plainProxy(path) {
+    var m = /^(.*\/imageproxy\/)(.*)(\/image[^\/]*)$/.exec(path);
+    if (!m || m[2].indexOf("%") < 0)
+        return path;
+    try {
+        return m[1] + decodeURIComponent(m[2]) + m[3];
+    } catch (e) {
+        return path;
+    }
+}
+
+// /imageproxy/.../image.jpg -> /imageproxy/.../image_NxN_o.jpg
+function sizedProxy(path, size) {
+    var m = /^(.*\/imageproxy\/.*\/image)(_[0-9x]+[^.\/]*)?(\.[a-z]+)$/.exec(path);
+    if (m)
+        return m[1] + "_" + size + "x" + size + "_o" + m[3];
+    return path;
 }
 
 // Okładka utworu z biblioteki (po coverid) w zadanym rozmiarze.
@@ -53,7 +87,7 @@ function coverForTrack(t, playerId, size) {
     if (!t)
         return "";
     if (t.artwork_url)
-        return imageUrl(t.artwork_url);
+        return imageUrl(t.artwork_url, size);
     if (t.coverid)
         return coverById(t.coverid, size);
     return baseUrl + "/music/current/cover_" + size + "x" + size + "_o?player=" +
@@ -96,8 +130,5 @@ function isGenericArtwork(url) {
 function largeImage(url, size) {
     if (!url)
         return "";
-    var m = /^(.*\/imageproxy\/.*\/image)(_[0-9x]+[^.]*)?(\.[a-z]+)$/.exec(url);
-    if (m)
-        return m[1] + "_" + size + "x" + size + "_o" + m[3];
-    return url;
+    return sizedProxy(plainProxy(String(url)), size);
 }

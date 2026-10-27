@@ -12,6 +12,8 @@ PageStackWindow {
     property string errorText: ""
 
     function call(cmd, callback) {
+        if (!Lyrion.isConfigured())
+            applyServer();
         Lyrion.request(player.playerId, cmd, function(result, error) {
             appWindow.errorText = error;
             if (callback)
@@ -37,8 +39,9 @@ PageStackWindow {
     // Stan wybranego odtwarzacza, odświeżany co sekundę.
     QtObject {
         id: player
-        property string playerId: backend.macAddress
-        property string playerName: backend.playerName
+        // Ostatnio wybrany odtwarzacz (zapamiętany), domyślnie telefon.
+        property string playerId: backend.lastPlayerId !== "" ? backend.lastPlayerId : backend.macAddress
+        property string playerName: backend.lastPlayerId !== "" ? backend.lastPlayerName : backend.playerName
         property bool found: false
         property string mode: "stop"
         property real time: 0
@@ -141,6 +144,7 @@ PageStackWindow {
     Component.onCompleted: {
         theme.inverted = true;
         applyServer();
+        pickActivePlayer();
     }
 
     Connections {
@@ -154,35 +158,37 @@ PageStackWindow {
 
     initialPage: HomePage { }
 
-    // Wybór odtwarzacza (telefon, Yamaha, ...)
-    ListModel { id: playersModel }
-
-    SelectionDialog {
-        id: playersDialog
-        titleText: T.t("Odtwarzacz")
-        model: playersModel
-        onAccepted: {
-            var p = playersModel.get(selectedIndex);
-            player.playerId = p.playerid;
-            player.playerName = p.name;
-            player.trackId = "";
-            player.url = "";
-            player.refresh();
-        }
+    // Wybór odtwarzacza (telefon, Yamaha, ...) na osobnej stronie.
+    function choosePlayer() {
+        pageStack.push(Qt.resolvedUrl("PlayersPage.qml"));
     }
 
-    function choosePlayer() {
+    function selectPlayer(id, name) {
+        player.playerId = id;
+        player.playerName = name;
+        player.trackId = "";
+        player.url = "";
+        player.title = "";
+        player.cover = "";
+        player.streamImage = "";
+        backend.rememberPlayer(id === backend.macAddress ? "" : id, name);
+        player.refresh();
+    }
+
+    // Przy starcie: jeśli wybrany odtwarzacz nie gra, a inny gra,
+    // pokaż ten grający (żeby tytuł na dole był aktualny).
+    function pickActivePlayer() {
         Lyrion.request("", ["players", 0, 50], function(res) {
-            playersModel.clear();
-            if (!res || !res.players_loop)
-                return;
-            for (var i = 0; i < res.players_loop.length; i++) {
-                var p = res.players_loop[i];
-                playersModel.append({ name: p.name, playerid: p.playerid });
-                if (p.playerid === player.playerId)
-                    playersDialog.selectedIndex = i;
+            var l = res && res.players_loop ? res.players_loop : [];
+            var mine = null, playing = null;
+            for (var i = 0; i < l.length; i++) {
+                if (l[i].playerid === player.playerId)
+                    mine = l[i];
+                else if (l[i].isplaying == 1 && playing === null)
+                    playing = l[i];
             }
-            playersDialog.open();
+            if (playing !== null && (mine === null || mine.isplaying != 1))
+                selectPlayer(playing.playerid, playing.name);
         });
     }
 
@@ -200,7 +206,7 @@ PageStackWindow {
     QueryDialog {
         id: aboutDialog
         icon: "file:///opt/lyrion-n9/lyrion-n9.png"
-        titleText: "Lyrion 0.5.0"
+        titleText: "Lyrion 0.6.1"
         message: T.t("Zaprojektowany i napisany przez Claude (Anthropic) wspólnie ze smyhu dla Nokii N9.\n\nPilot i odtwarzacz dla serwera Lyrion Music Server.\nOdtwarzacz: squeezelite (Ralph Irving, GPL-3).")
         acceptButtonText: T.t("Zamknij")
     }

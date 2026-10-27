@@ -119,6 +119,25 @@ class Backend(QObject):
     newCount = Property(unicode, _newcount, _set_newcount, notify=settingsChanged)
     autostart = Property(bool, _autostart, _set_autostart, notify=settingsChanged)
 
+    # Ostatnio wybrany odtwarzacz ("" = ten telefon).
+    lastPlayerChanged = Signal()
+
+    def _last_id(self):
+        return unicode(self._get('lastplayer', ''))
+
+    def _last_name(self):
+        return unicode(self._get('lastplayername', ''))
+
+    lastPlayerId = Property(unicode, _last_id, notify=lastPlayerChanged)
+    lastPlayerName = Property(unicode, _last_name, notify=lastPlayerChanged)
+
+    @Slot(unicode, unicode)
+    def rememberPlayer(self, playerid, name):
+        self._settings.setValue('lastplayer', playerid)
+        self._settings.setValue('lastplayername', name)
+        self._settings.sync()
+        self.lastPlayerChanged.emit()
+
     def _macaddr(self):
         return self._mac
 
