@@ -1,0 +1,11 @@
+Package: lyrion-n9
+Version: 0.5.0
+Section: user/multimedia
+Priority: optional
+Architecture: armel
+Depends: python, python-pyside.qtcore, python-pyside.qtgui, python-pyside.qtdeclarative, alsa-utils
+Maintainer: smyhu <smyhu@users.noreply.github.com>
+Description: Lyrion Music Server: odtwarzacz i pilot dla Nokia N9
+ Zamienia N9 w odtwarzacz Lyrion (squeezelite) i pozwala sterowac
+ serwerem: biblioteka, radio, aplikacje (SoundCloud), kolejka, glosnosc.
+XSBC-Maemo-Display-Name: Lyrion

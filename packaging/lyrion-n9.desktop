@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Lyrion
+Comment=Odtwarzacz i pilot Lyrion Music Server
+Exec=invoker --type=e --single-instance /usr/bin/python /opt/lyrion-n9/main.py
+Icon=/opt/lyrion-n9/lyrion-n9.png
+X-Window-Icon=
+X-HildonDesk-ShowInToolbar=true
+X-Osso-Type=application/x-executable
