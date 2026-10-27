@@ -13,19 +13,28 @@ with smyhu.
 - **Now playing:** cover, track info, seek, volume and queue.
 - **Library:** artists, albums, songs, playlists, favourites, new music, folders, genres and
   years. Global search across the library and server apps (radio, SoundCloud and others).
+- **Server apps (SoundCloud, Spotty, radio):** tap a track to play it; press and hold for
+  Play / Play next / Add to queue / Details. Covers from these services are fetched and
+  resized by the server, so the phone never needs HTTPS.
+- **Players:** a list of all players on the server; the app remembers the last one and, on
+  start, switches to a player that is already playing.
 - **Languages:** Polish, English, German, Spanish, Italian and French, following the phone
   language. Any other language falls back to English.
+
+SoundCloud needs the [SqueezeCloud](https://github.com/danielvijge/SqueezeCloud) plugin and
+ffmpeg on the server. In the official Docker image ffmpeg can be added with a `custom-init.sh`
+in `/config` (`apt-get update && apt-get install -y ffmpeg`).
 
 The server address and player name are set in Settings. The app talks to the server over plain
 HTTP JSON-RPC on the home network (port 9000).
 
 ## Install
 
-Copy `dist/lyrion-n9_0.5.0_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
+Copy `dist/lyrion-n9_0.6.1_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
 only 4 MB), then as root (developer mode):
 
 ```
-aegis-dpkg -i /home/developer/lyrion-n9_0.5.0_armel.deb
+aegis-dpkg -i /home/developer/lyrion-n9_0.6.1_armel.deb
 ```
 
 Requirements: PySide and alsa-utils, both present on a standard PR1.3 phone.
@@ -62,9 +71,13 @@ Zaprojektowana i napisana przez Claude (Anthropic) wspólnie ze smyhu.
 - **Pilot:** sterowanie dowolnym odtwarzaczem na serwerze, np. wzmacniaczem sieciowym.
 - **Biblioteka:** wykonawcy, albumy, utwory, listy, ulubione, nowości, foldery, gatunki i lata.
 - **Wyszukiwanie** w bibliotece i w aplikacjach serwera (radio, SoundCloud).
+- **Aplikacje serwera (SoundCloud, Spotty, radio):** stuknięcie utworu go odtwarza,
+  przytrzymanie otwiera menu (Odtwórz, Odtwórz jako następny, Dodaj do kolejki, Szczegóły).
+  Okładki pobiera i zmniejsza serwer, więc telefon nie potrzebuje HTTPS.
+- **Odtwarzacze:** lista wszystkich odtwarzaczy; aplikacja pamięta ostatni wybrany.
 - **Sześć języków**, zależnie od języka telefonu.
 
-Instalacja: skopiuj `dist/lyrion-n9_0.5.0_armel.deb` do `/home/developer` w telefonie i jako
-root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.5.0_armel.deb`.
+Instalacja: skopiuj `dist/lyrion-n9_0.6.1_armel.deb` do `/home/developer` w telefonie i jako
+root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.6.1_armel.deb`.
 
 Licencja: MIT (plik `LICENSE`); wbudowany squeezelite jest na licencji GPL-3.0.
