@@ -43,6 +43,7 @@ Requirements: PySide and alsa-utils, both present on a standard PR1.3 phone.
 
 ## Licences and sources
 
+- Lyrion for N9 (everything outside `squeezelite/`): MIT (`LICENSE`).
 - squeezelite: GPL-3.0 (`squeezelite/LICENSE-squeezelite.txt`). The binary was built from
   [ralph-irving/squeezelite](https://github.com/ralph-irving/squeezelite) at commit
   `4e0ec3188320da7de059c571499e626ff8b3712f` with static libogg, libvorbis, flac, opus, opusfile,
@@ -65,3 +66,5 @@ Zaprojektowana i napisana przez Claude (Anthropic) wspólnie ze smyhu.
 
 Instalacja: skopiuj `dist/lyrion-n9_0.5.0_armel.deb` do `/home/developer` w telefonie i jako
 root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.5.0_armel.deb`.
+
+Licencja: MIT (plik `LICENSE`); wbudowany squeezelite jest na licencji GPL-3.0.
