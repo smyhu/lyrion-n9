@@ -7,6 +7,8 @@ Nokia N9 (MeeGo Harmattan PR1.3), written in 2026. The phone becomes both a play
 with the look of the N9's own Music app. Designed and written by Claude (Anthropic) together
 with smyhu.
 
+![Screenshots from the emulator](art/screenshots.png)
+
 - **Player in the phone:** a bundled, statically built [squeezelite](https://github.com/ralph-irving/squeezelite)
   plays MP3, FLAC, Ogg Vorbis, Opus and AAC streams from the server (`squeezelite -o - | aplay`).
 - **Remote:** choose any player on the server (e.g. a network amplifier) and control it from the N9.
