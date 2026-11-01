@@ -32,11 +32,11 @@ HTTP JSON-RPC on the home network (port 9000).
 
 ## Install
 
-Copy `dist/lyrion-n9_0.6.1_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
+Copy `dist/lyrion-n9_0.6.2_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
 only 4 MB), then as root (developer mode):
 
 ```
-aegis-dpkg -i /home/developer/lyrion-n9_0.6.1_armel.deb
+aegis-dpkg -i /home/developer/lyrion-n9_0.6.2_armel.deb
 ```
 
 Requirements: PySide and alsa-utils, both present on a standard PR1.3 phone.
@@ -79,7 +79,7 @@ Zaprojektowana i napisana przez Claude (Anthropic) wspólnie ze smyhu.
 - **Odtwarzacze:** lista wszystkich odtwarzaczy; aplikacja pamięta ostatni wybrany.
 - **Sześć języków**, zależnie od języka telefonu.
 
-Instalacja: skopiuj `dist/lyrion-n9_0.6.1_armel.deb` do `/home/developer` w telefonie i jako
-root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.6.1_armel.deb`.
+Instalacja: skopiuj `dist/lyrion-n9_0.6.2_armel.deb` do `/home/developer` w telefonie i jako
+root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.6.2_armel.deb`.
 
 Licencja: MIT (plik `LICENSE`); wbudowany squeezelite jest na licencji GPL-3.0.

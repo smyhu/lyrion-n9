@@ -206,7 +206,7 @@ PageStackWindow {
     QueryDialog {
         id: aboutDialog
         icon: "file:///opt/lyrion-n9/lyrion-n9.png"
-        titleText: "Lyrion 0.6.1"
+        titleText: "Lyrion 0.6.2"
         message: T.t("Zaprojektowany i napisany przez Claude (Anthropic) wspólnie ze smyhu dla Nokii N9.\n\nPilot i odtwarzacz dla serwera Lyrion Music Server.\nOdtwarzacz: squeezelite (Ralph Irving, GPL-3).")
         acceptButtonText: T.t("Zamknij")
     }

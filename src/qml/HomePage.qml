@@ -113,7 +113,7 @@ Page {
                         if (model.kind === "search")
                             pageStack.push(Qt.resolvedUrl("SearchPage.qml"));
                         else
-                            appWindow.openList({ kind: model.kind, heading: model.name });
+                            appWindow.openList({ kind: model.kind, heading: T.t(model.name) });
                     }
                 }
             }
