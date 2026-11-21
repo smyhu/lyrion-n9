@@ -103,6 +103,14 @@ class Backend(QObject):
         self._settings.setValue('newcount', value.strip())
         self.settingsChanged.emit()
 
+    # Ile utworow najwyzej dodawac naraz z jednej listy (np. SoundCloud Likes).
+    def _queuelimit(self):
+        return unicode(self._get('queuelimit', '100'))
+
+    def _set_queuelimit(self, value):
+        self._settings.setValue('queuelimit', value.strip())
+        self.settingsChanged.emit()
+
     def _autostart(self):
         return unicode(self._get('autostart', 'true')) == 'true'
 
@@ -117,6 +125,7 @@ class Backend(QObject):
     port = Property(unicode, _port, _set_port, notify=settingsChanged)
     playerName = Property(unicode, _name, _set_name, notify=settingsChanged)
     newCount = Property(unicode, _newcount, _set_newcount, notify=settingsChanged)
+    queueLimit = Property(unicode, _queuelimit, _set_queuelimit, notify=settingsChanged)
     autostart = Property(bool, _autostart, _set_autostart, notify=settingsChanged)
 
     # Ostatnio wybrany odtwarzacz ("" = ten telefon).

@@ -132,3 +132,18 @@ function largeImage(url, size) {
         return "";
     return sizedProxy(plainProxy(String(url)), size);
 }
+
+// Czy pozycja menu usługi (OPML) to pojedynczy utwór lub stacja, a nie
+// folder, album, lista czy wyszukiwanie (np. utwór na liście SoundCloud).
+function isTrackItem(it) {
+    return it && it.isaudio == 1 && it.type !== "search" && it.type !== "playlist" &&
+           it.type !== "link" && it.type !== "opml";
+}
+
+// Limit utworów dodawanych naraz z jednej listy (ustawienie, 1–1000).
+function limitOf(value) {
+    var n = parseInt(value, 10);
+    if (isNaN(n) || n < 1)
+        n = 100;
+    return n > 1000 ? 1000 : n;
+}

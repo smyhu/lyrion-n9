@@ -619,6 +619,216 @@ var dict = {
   "es": "Polaco",
   "it": "Polacco",
   "fr": "Polonais"
+ },
+ "%1 z %2": {
+  "en": "%1 of %2",
+  "de": "%1 von %2",
+  "es": "%1 de %2",
+  "it": "%1 di %2",
+  "fr": "%1 sur %2"
+ },
+ "Anuluj": {
+  "en": "Cancel",
+  "de": "Abbrechen",
+  "es": "Cancelar",
+  "it": "Annulla",
+  "fr": "Annuler"
+ },
+ "Brak utworów do dodania": {
+  "en": "No tracks to add",
+  "de": "Keine Titel zum Hinzufügen",
+  "es": "No hay canciones para añadir",
+  "it": "Nessun brano da aggiungere",
+  "fr": "Aucun titre à ajouter"
+ },
+ "Błędy: %1.": {
+  "en": "Errors: %1.",
+  "de": "Fehler: %1.",
+  "es": "Errores: %1.",
+  "it": "Errori: %1.",
+  "fr": "Erreurs : %1."
+ },
+ "Dodaj": {
+  "en": "Add",
+  "de": "Hinzuf.",
+  "es": "Añadir",
+  "it": "Aggiungi",
+  "fr": "Ajouter"
+ },
+ "Dodaj wszystkie do kolejki": {
+  "en": "Add all to queue",
+  "de": "Alle zur Warteschlange",
+  "es": "Añadir todo a la cola",
+  "it": "Aggiungi tutti alla coda",
+  "fr": "Tout ajouter à la file"
+ },
+ "Dodaj zaznaczone (%1)": {
+  "en": "Add selected (%1)",
+  "de": "Auswahl hinzufügen (%1)",
+  "es": "Añadir selección (%1)",
+  "it": "Aggiungi selezionati (%1)",
+  "fr": "Ajouter la sélection (%1)"
+ },
+ "Dodano %1 z %2 utworów.": {
+  "en": "Added %1 of %2 tracks.",
+  "de": "%1 von %2 Titeln hinzugefügt.",
+  "es": "Añadidas %1 de %2 canciones.",
+  "it": "Aggiunti %1 di %2 brani.",
+  "fr": "%1 titres ajoutés sur %2."
+ },
+ "Dodano utwory: %1.": {
+  "en": "Tracks added: %1.",
+  "de": "Titel hinzugefügt: %1.",
+  "es": "Canciones añadidas: %1.",
+  "it": "Brani aggiunti: %1.",
+  "fr": "Titres ajoutés : %1."
+ },
+ "Dodawanie do kolejki: %1": {
+  "en": "Adding to queue: %1",
+  "de": "Zur Warteschlange: %1",
+  "es": "Añadiendo a la cola: %1",
+  "it": "Aggiunta alla coda: %1",
+  "fr": "Ajout à la file : %1"
+ },
+ "Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, zalecane 100.": {
+  "en": "Used by “Play” and “Add to queue” for whole lists (e.g. SoundCloud: Likes, Hot). 1 to 1000, 100 recommended.",
+  "de": "Gilt für „Abspielen“ und „Zur Warteschlange“ bei ganzen Listen (z. B. SoundCloud: Likes, Hot). 1 bis 1000, empfohlen 100.",
+  "es": "Se aplica a «Reproducir» y «Añadir a la cola» con listas completas (p. ej. SoundCloud: Likes, Hot). De 1 a 1000, recomendado 100.",
+  "it": "Vale per «Riproduci» e «Aggiungi alla coda» su liste intere (es. SoundCloud: Likes, Hot). Da 1 a 1000, consigliato 100.",
+  "fr": "S’applique à « Lire » et « Ajouter à la file » pour des listes entières (ex. SoundCloud : Likes, Hot). De 1 à 1000, 100 conseillé."
+ },
+ "Limit dodawania naraz: %1": {
+  "en": "Add limit at once: %1",
+  "de": "Limit pro Vorgang: %1",
+  "es": "Límite por vez: %1",
+  "it": "Limite per volta: %1",
+  "fr": "Limite par ajout : %1"
+ },
+ "Limit utworów dodawanych naraz z listy": {
+  "en": "Max tracks added at once from a list",
+  "de": "Max. Titel pro Liste auf einmal",
+  "es": "Máx. canciones añadidas de una lista",
+  "it": "Max brani aggiunti da una lista",
+  "fr": "Max de titres ajoutés depuis une liste"
+ },
+ "Limit: %1 (Ustawienia).": {
+  "en": "Limit: %1 (Settings).",
+  "de": "Limit: %1 (Einstellungen).",
+  "es": "Límite: %1 (Ajustes).",
+  "it": "Limite: %1 (Impostazioni).",
+  "fr": "Limite : %1 (Paramètres)."
+ },
+ "Odtwarzanie: %1": {
+  "en": "Playing: %1",
+  "de": "Wiedergabe: %1",
+  "es": "Reproduciendo: %1",
+  "it": "Riproduzione: %1",
+  "fr": "Lecture : %1"
+ },
+ "Odtwórz wszystkie": {
+  "en": "Play all",
+  "de": "Alle abspielen",
+  "es": "Reproducir todo",
+  "it": "Riproduci tutti",
+  "fr": "Tout lire"
+ },
+ "Odtwórz zaznaczone (%1)": {
+  "en": "Play selected (%1)",
+  "de": "Auswahl abspielen (%1)",
+  "es": "Reproducir selección (%1)",
+  "it": "Riproduci selezionati (%1)",
+  "fr": "Lire la sélection (%1)"
+ },
+ "Pozycje na liście: %1": {
+  "en": "Items in list: %1",
+  "de": "Einträge in der Liste: %1",
+  "es": "Elementos en la lista: %1",
+  "it": "Elementi nella lista: %1",
+  "fr": "Éléments dans la liste : %1"
+ },
+ "Przerwano. Dodano %1 z %2.": {
+  "en": "Stopped. Added %1 of %2.",
+  "de": "Abgebrochen. %1 von %2 hinzugefügt.",
+  "es": "Detenido. Añadidas %1 de %2.",
+  "it": "Interrotto. Aggiunti %1 di %2.",
+  "fr": "Arrêté. %1 ajoutés sur %2."
+ },
+ "Przerwij dodawanie (%1)": {
+  "en": "Stop adding (%1)",
+  "de": "Hinzufügen stoppen (%1)",
+  "es": "Detener (%1)",
+  "it": "Interrompi (%1)",
+  "fr": "Arrêter l’ajout (%1)"
+ },
+ "Stuknij utwory w wybranej kolejności": {
+  "en": "Tap tracks in the order you want",
+  "de": "Titel in gewünschter Reihenfolge antippen",
+  "es": "Toca las canciones en el orden deseado",
+  "it": "Tocca i brani nell’ordine voluto",
+  "fr": "Touchez les titres dans l’ordre voulu"
+ },
+ "Trwa dodawanie (%1). Przerwij je w menu.": {
+  "en": "Adding in progress (%1). Stop it from the menu.",
+  "de": "Hinzufügen läuft (%1). Im Menü stoppen.",
+  "es": "Añadiendo (%1). Detenlo desde el menú.",
+  "it": "Aggiunta in corso (%1). Interrompi dal menu.",
+  "fr": "Ajout en cours (%1). Arrêtez-le depuis le menu."
+ },
+ "Utwory: %1 (limit %2). Przerwij w menu.": {
+  "en": "Tracks: %1 (limit %2). Stop from the menu.",
+  "de": "Titel: %1 (Limit %2). Im Menü stoppen.",
+  "es": "Canciones: %1 (límite %2). Detener en el menú.",
+  "it": "Brani: %1 (limite %2). Interrompi dal menu.",
+  "fr": "Titres : %1 (limite %2). Arrêt via le menu."
+ },
+ "Wczytywanie: %1…": {
+  "en": "Loading: %1…",
+  "de": "Laden: %1…",
+  "es": "Cargando: %1…",
+  "it": "Caricamento: %1…",
+  "fr": "Chargement : %1…"
+ },
+ "Wszystkie": {
+  "en": "All",
+  "de": "Alle",
+  "es": "Todas",
+  "it": "Tutti",
+  "fr": "Tous"
+ },
+ "Zakończ zaznaczanie": {
+  "en": "Stop selecting",
+  "de": "Auswahl beenden",
+  "es": "Terminar selección",
+  "it": "Termina selezione",
+  "fr": "Terminer la sélection"
+ },
+ "Zaznacz utwory": {
+  "en": "Select tracks",
+  "de": "Titel auswählen",
+  "es": "Seleccionar canciones",
+  "it": "Seleziona brani",
+  "fr": "Sélectionner des titres"
+ },
+ "Zaznaczono: %1 (odtwarzanie wg numerów)": {
+  "en": "Selected: %1 (plays in number order)",
+  "de": "Ausgewählt: %1 (Wiedergabe nach Nummern)",
+  "es": "Seleccionadas: %1 (se reproducen por número)",
+  "it": "Selezionati: %1 (riproduzione per numero)",
+  "fr": "Sélectionnés : %1 (lecture par numéro)"
+ },
+ "Żadne": {
+  "en": "None",
+  "de": "Keine",
+  "es": "Ninguna",
+  "it": "Nessuno",
+  "fr": "Aucun"
+ },
+ "„Odtwórz” i „Dodaj do kolejki” wezmą pierwsze %1. Limit zmienisz w Ustawieniach.": {
+  "en": "“Play” and “Add to queue” will take the first %1. Change the limit in Settings.",
+  "de": "„Abspielen“ und „Zur Warteschlange“ nehmen die ersten %1. Limit in den Einstellungen ändern.",
+  "es": "«Reproducir» y «Añadir a la cola» tomarán las primeras %1. Cambia el límite en Ajustes.",
+  "it": "«Riproduci» e «Aggiungi alla coda» prenderanno i primi %1. Cambia il limite nelle Impostazioni.",
+  "fr": "« Lire » et « Ajouter à la file » prendront les %1 premiers. Modifiez la limite dans Paramètres."
  }
 };
 

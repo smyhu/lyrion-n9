@@ -1,5 +1,6 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
+import com.nokia.extras 1.1
 import "i18n.js" as T
 import "lyrion.js" as Lyrion
 
@@ -192,9 +193,149 @@ PageStackWindow {
         });
     }
 
+    // --- Dodawanie całej listy (np. SoundCloud Likes/Hot) utwór po utworze ---
+    // Każdy utwór to osobne polecenie, więc kolejność jest zachowana, muzyka
+    // rusza od razu po pierwszym, a dodawanie można przerwać z menu.
+    QtObject {
+        id: bulk
+        property bool running: false
+        property bool cancelled: false
+        property string playerId: ""
+        property string cmd: ""
+        property string mode: ""      // "play" albo "add"
+        property string title: ""
+        property variant ids: []
+        property int pos: 0
+        property int total: 0         // ile pozycji ma lista na serwerze
+        property int limit: 0
+        property int added: 0
+        property int failed: 0
+    }
+    property bool bulkRunning: bulk.running
+    property string bulkProgress: bulk.pos + "/" + bulk.ids.length
+
+    function notify(text) {
+        banner.text = text;
+        banner.show();
+    }
+
+    // Pobiera listę (najwyżej tyle pozycji, ile wynosi limit) i dodaje jej utwory.
+    function bulkFromList(cmd, itemId, mode, title) {
+        if (bulk.running) {
+            notify(T.t("Trwa dodawanie (%1). Przerwij je w menu.", bulkProgress));
+            return;
+        }
+        var limit = Lyrion.limitOf(backend.queueLimit);
+        var q = [cmd, "items", 0, limit, "want_url:0"];
+        if (itemId !== "")
+            q.push("item_id:" + itemId);
+        notify(T.t("Wczytywanie: %1…", title));
+        call(q, function(res) {
+            var l = res && res.loop_loop ? res.loop_loop : [];
+            var ids = [];
+            for (var i = 0; i < l.length; i++)
+                if (Lyrion.isTrackItem(l[i]))
+                    ids.push(String(l[i].id));
+            var total = res && res.count !== undefined ? Number(res.count) : l.length;
+            if (!res)
+                notify(T.t(appWindow.errorText || "Brak połączenia z serwerem"));
+            else
+                bulkRun(cmd, ids, mode, title, total);
+        });
+    }
+
+    // ids: identyfikatory utworów w kolejności odtwarzania.
+    function bulkRun(cmd, ids, mode, title, total) {
+        if (bulk.running) {
+            notify(T.t("Trwa dodawanie (%1). Przerwij je w menu.", bulkProgress));
+            return;
+        }
+        var limit = Lyrion.limitOf(backend.queueLimit);
+        if (ids.length === 0) {
+            notify(T.t("Brak utworów do dodania"));
+            return;
+        }
+        if (ids.length > limit)
+            ids = ids.slice(0, limit);
+        bulk.playerId = player.playerId;
+        bulk.cmd = cmd;
+        bulk.mode = mode;
+        bulk.title = title;
+        bulk.ids = ids;
+        bulk.pos = 0;
+        bulk.total = Math.max(total || 0, ids.length);
+        bulk.limit = limit;
+        bulk.added = 0;
+        bulk.failed = 0;
+        bulk.cancelled = false;
+        bulk.running = true;
+        var what = bulk.total > ids.length ? T.t("%1 z %2", ids.length, bulk.total) : String(ids.length);
+        notify((mode === "play" ? T.t("Odtwarzanie: %1", title) : T.t("Dodawanie do kolejki: %1", title)) + "\n" +
+               T.t("Utwory: %1 (limit %2). Przerwij w menu.", what, limit));
+        if (mode === "play") {
+            player.streamImage = "";
+            openNowPlaying();
+        }
+        bulkStep();
+    }
+
+    function bulkStep() {
+        if (bulk.cancelled || bulk.pos >= bulk.ids.length) {
+            bulkFinish();
+            return;
+        }
+        var how = bulk.mode === "play" && bulk.pos === 0 ? "play" : "add";
+        Lyrion.request(bulk.playerId, [bulk.cmd, "playlist", how, "item_id:" + bulk.ids[bulk.pos]], function(res, error) {
+            if (error !== "")
+                bulk.failed++;
+            else
+                bulk.added++;
+            bulk.pos++;
+            if (bulk.pos === 1 || bulk.pos % 10 === 0)
+                pollSoon.restart();
+            // Serwer nie odpowiada: nie męczymy go dalej.
+            if (bulk.failed >= 3 && bulk.added === 0)
+                bulk.cancelled = true;
+            bulkStep();
+        });
+    }
+
+    function bulkCancel() {
+        if (bulk.running)
+            bulk.cancelled = true;
+    }
+
+    function bulkFinish() {
+        var text;
+        if (bulk.cancelled && bulk.pos < bulk.ids.length)
+            text = T.t("Przerwano. Dodano %1 z %2.", bulk.added, bulk.ids.length);
+        else if (bulk.total > bulk.ids.length)
+            text = T.t("Dodano %1 z %2 utworów.", bulk.added, bulk.total) + " " + T.t("Limit: %1 (Ustawienia).", bulk.limit);
+        else
+            text = T.t("Dodano utwory: %1.", bulk.added);
+        if (bulk.failed > 0)
+            text += " " + T.t("Błędy: %1.", bulk.failed);
+        bulk.running = false;
+        bulk.ids = [];
+        player.queueVersion++;
+        pollSoon.restart();
+        notify(text);
+    }
+
+    InfoBanner {
+        id: banner
+        topMargin: 46
+        timerShowTime: 4000
+    }
+
     Menu {
         id: mainMenu
         MenuLayout {
+            MenuItem {
+                text: T.t("Przerwij dodawanie (%1)", appWindow.bulkProgress)
+                visible: appWindow.bulkRunning
+                onClicked: appWindow.bulkCancel()
+            }
             MenuItem { text: T.t("Wybierz odtwarzacz"); onClicked: appWindow.choosePlayer() }
             MenuItem { text: T.t("Ustawienia"); onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml")) }
             MenuItem { text: T.t("O programie"); onClicked: aboutDialog.open() }
@@ -206,7 +347,7 @@ PageStackWindow {
     QueryDialog {
         id: aboutDialog
         icon: "file:///opt/lyrion-n9/lyrion-n9.png"
-        titleText: "Lyrion 0.6.2"
+        titleText: "Lyrion 0.6.3"
         message: T.t("Zaprojektowany i napisany przez Claude (Anthropic) wspólnie ze smyhu dla Nokii N9.\n\nPilot i odtwarzacz dla serwera Lyrion Music Server.\nOdtwarzacz: squeezelite (Ralph Irving, GPL-3).")
         acceptButtonText: T.t("Zamknij")
     }

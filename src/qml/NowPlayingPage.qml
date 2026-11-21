@@ -300,6 +300,11 @@ Page {
     Menu {
         id: npMenu
         MenuLayout {
+            MenuItem {
+                text: T.t("Przerwij dodawanie (%1)", appWindow.bulkProgress)
+                visible: appWindow.bulkRunning
+                onClicked: appWindow.bulkCancel()
+            }
             MenuItem { text: T.t("Szczegóły utworu"); onClicked: pageStack.push(Qt.resolvedUrl("InfoPage.qml")) }
             MenuItem { text: T.t("Wyczyść kolejkę"); onClicked: appWindow.call(["playlist", "clear"]) }
             MenuItem { text: T.t("Wybierz odtwarzacz"); onClicked: appWindow.choosePlayer() }
