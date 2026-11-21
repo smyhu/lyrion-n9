@@ -620,13 +620,6 @@ var dict = {
   "it": "Polacco",
   "fr": "Polonais"
  },
- "%1 z %2": {
-  "en": "%1 of %2",
-  "de": "%1 von %2",
-  "es": "%1 de %2",
-  "it": "%1 di %2",
-  "fr": "%1 sur %2"
- },
  "Anuluj": {
   "en": "Cancel",
   "de": "Abbrechen",
@@ -640,13 +633,6 @@ var dict = {
   "es": "No hay canciones para añadir",
   "it": "Nessun brano da aggiungere",
   "fr": "Aucun titre à ajouter"
- },
- "Błędy: %1.": {
-  "en": "Errors: %1.",
-  "de": "Fehler: %1.",
-  "es": "Errores: %1.",
-  "it": "Errori: %1.",
-  "fr": "Erreurs : %1."
  },
  "Dodaj": {
   "en": "Add",
@@ -690,12 +676,12 @@ var dict = {
   "it": "Aggiunta alla coda: %1",
   "fr": "Ajout à la file : %1"
  },
- "Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, zalecane 100.": {
-  "en": "Used by “Play” and “Add to queue” for whole lists (e.g. SoundCloud: Likes, Hot). 1 to 1000, 100 recommended.",
-  "de": "Gilt für „Abspielen“ und „Zur Warteschlange“ bei ganzen Listen (z. B. SoundCloud: Likes, Hot). 1 bis 1000, empfohlen 100.",
-  "es": "Se aplica a «Reproducir» y «Añadir a la cola» con listas completas (p. ej. SoundCloud: Likes, Hot). De 1 a 1000, recomendado 100.",
-  "it": "Vale per «Riproduci» e «Aggiungi alla coda» su liste intere (es. SoundCloud: Likes, Hot). Da 1 a 1000, consigliato 100.",
-  "fr": "S’applique à « Lire » et « Ajouter à la file » pour des listes entières (ex. SoundCloud : Likes, Hot). De 1 à 1000, 100 conseillé."
+ "Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, domyślnie 50.": {
+  "en": "Used by “Play” and “Add to queue” for whole lists (e.g. SoundCloud: Likes, Hot). 1 to 1000, default 50.",
+  "de": "Gilt für „Abspielen“ und „Zur Warteschlange“ bei ganzen Listen (z. B. SoundCloud: Likes, Hot). 1 bis 1000, Standard 50.",
+  "es": "Se aplica a «Reproducir» y «Añadir a la cola» con listas completas (p. ej. SoundCloud: Likes, Hot). De 1 a 1000, por defecto 50.",
+  "it": "Vale per «Riproduci» e «Aggiungi alla coda» su liste intere (es. SoundCloud: Likes, Hot). Da 1 a 1000, predefinito 50.",
+  "fr": "S’applique à « Lire » et « Ajouter à la file » pour des listes entières (ex. SoundCloud : Likes, Hot). De 1 à 1000, 50 par défaut."
  },
  "Limit dodawania naraz: %1": {
   "en": "Add limit at once: %1",
@@ -746,13 +732,6 @@ var dict = {
   "it": "Elementi nella lista: %1",
   "fr": "Éléments dans la liste : %1"
  },
- "Przerwano. Dodano %1 z %2.": {
-  "en": "Stopped. Added %1 of %2.",
-  "de": "Abgebrochen. %1 von %2 hinzugefügt.",
-  "es": "Detenido. Añadidas %1 de %2.",
-  "it": "Interrotto. Aggiunti %1 di %2.",
-  "fr": "Arrêté. %1 ajoutés sur %2."
- },
  "Przerwij dodawanie (%1)": {
   "en": "Stop adding (%1)",
   "de": "Hinzufügen stoppen (%1)",
@@ -766,27 +745,6 @@ var dict = {
   "es": "Toca las canciones en el orden deseado",
   "it": "Tocca i brani nell’ordine voluto",
   "fr": "Touchez les titres dans l’ordre voulu"
- },
- "Trwa dodawanie (%1). Przerwij je w menu.": {
-  "en": "Adding in progress (%1). Stop it from the menu.",
-  "de": "Hinzufügen läuft (%1). Im Menü stoppen.",
-  "es": "Añadiendo (%1). Detenlo desde el menú.",
-  "it": "Aggiunta in corso (%1). Interrompi dal menu.",
-  "fr": "Ajout en cours (%1). Arrêtez-le depuis le menu."
- },
- "Utwory: %1 (limit %2). Przerwij w menu.": {
-  "en": "Tracks: %1 (limit %2). Stop from the menu.",
-  "de": "Titel: %1 (Limit %2). Im Menü stoppen.",
-  "es": "Canciones: %1 (límite %2). Detener en el menú.",
-  "it": "Brani: %1 (limite %2). Interrompi dal menu.",
-  "fr": "Titres : %1 (limite %2). Arrêt via le menu."
- },
- "Wczytywanie: %1…": {
-  "en": "Loading: %1…",
-  "de": "Laden: %1…",
-  "es": "Cargando: %1…",
-  "it": "Caricamento: %1…",
-  "fr": "Chargement : %1…"
  },
  "Wszystkie": {
   "en": "All",
@@ -829,6 +787,55 @@ var dict = {
   "es": "«Reproducir» y «Añadir a la cola» tomarán las primeras %1. Cambia el límite en Ajustes.",
   "it": "«Riproduci» e «Aggiungi alla coda» prenderanno i primi %1. Cambia il limite nelle Impostazioni.",
   "fr": "« Lire » et « Ajouter à la file » prendront les %1 premiers. Modifiez la limite dans Paramètres."
+ },
+ "Trwa dodawanie. Poczekaj chwilę.": {
+  "en": "Adding in progress. Please wait.",
+  "de": "Hinzufügen läuft. Bitte warten.",
+  "es": "Añadiendo. Espera un momento.",
+  "it": "Aggiunta in corso. Attendi.",
+  "fr": "Ajout en cours. Patientez."
+ },
+ "wczytywanie": {
+  "en": "loading",
+  "de": "laden",
+  "es": "cargando",
+  "it": "caricamento",
+  "fr": "chargement"
+ },
+ "porządkowanie": {
+  "en": "tidying",
+  "de": "aufräumen",
+  "es": "ordenando",
+  "it": "riordino",
+  "fr": "rangement"
+ },
+ "Zaznaczone utwory: %1": {
+  "en": "Selected tracks: %1",
+  "de": "Ausgewählte Titel: %1",
+  "es": "Canciones seleccionadas: %1",
+  "it": "Brani selezionati: %1",
+  "fr": "Titres sélectionnés : %1"
+ },
+ "Najwyżej %1 utworów (limit w Ustawieniach).": {
+  "en": "Up to %1 tracks (limit in Settings).",
+  "de": "Höchstens %1 Titel (Limit in den Einstellungen).",
+  "es": "Hasta %1 canciones (límite en Ajustes).",
+  "it": "Al massimo %1 brani (limite nelle Impostazioni).",
+  "fr": "Jusqu’à %1 titres (limite dans Paramètres)."
+ },
+ "Odtwarzanie losowe: limit i kolejność pominięte.": {
+  "en": "Shuffle is on: limit and order skipped.",
+  "de": "Zufallswiedergabe an: Limit und Reihenfolge übersprungen.",
+  "es": "Aleatorio activado: límite y orden omitidos.",
+  "it": "Casuale attivo: limite e ordine ignorati.",
+  "fr": "Lecture aléatoire : limite et ordre ignorés."
+ },
+ "Przerwano. Kolejka może zawierać więcej utworów niż limit.": {
+  "en": "Stopped. The queue may hold more tracks than the limit.",
+  "de": "Abgebrochen. Die Warteschlange kann mehr Titel als das Limit enthalten.",
+  "es": "Detenido. La cola puede tener más canciones que el límite.",
+  "it": "Interrotto. La coda può contenere più brani del limite.",
+  "fr": "Arrêté. La file peut contenir plus de titres que la limite."
  }
 };
 

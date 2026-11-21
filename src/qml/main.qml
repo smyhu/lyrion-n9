@@ -193,111 +193,180 @@ PageStackWindow {
         });
     }
 
-    // --- Dodawanie całej listy (np. SoundCloud Likes/Hot) utwór po utworze ---
-    // Każdy utwór to osobne polecenie, więc kolejność jest zachowana, muzyka
-    // rusza od razu po pierwszym, a dodawanie można przerwać z menu.
+    // --- Dodawanie całej listy (np. SoundCloud Likes/Hot) ---
+    // Jak przy playlistach: serwer dodaje cały folder jednym poleceniem
+    // (wtyczka SoundCloud i tak pobiera całą listę przy każdym zapytaniu,
+    // więc dodawanie utwór po utworze trwało ok. 5 s na utwór). Potem
+    // telefon przycina kolejkę do limitu albo układa zaznaczone utwory
+    // w wybranej kolejności i usuwa resztę (to szybkie operacje na serwerze).
     QtObject {
         id: bulk
         property bool running: false
         property bool cancelled: false
         property string playerId: ""
-        property string cmd: ""
         property string mode: ""      // "play" albo "add"
         property string title: ""
-        property variant ids: []
-        property int pos: 0
-        property int total: 0         // ile pozycji ma lista na serwerze
+        property variant picks: []    // zaznaczone: pozycje w liście w wybranej kolejności
+        property int base: 0          // ile było w kolejce przed dodaniem
+        property int added: 0         // ile dodał serwer
+        property int keep: 0          // ile zostaje
         property int limit: 0
-        property int added: 0
-        property int failed: 0
+        property string step: ""
     }
     property bool bulkRunning: bulk.running
-    property string bulkProgress: bulk.pos + "/" + bulk.ids.length
+    property string bulkProgress: bulk.step
 
     function notify(text) {
         banner.text = text;
         banner.show();
     }
 
-    // Pobiera listę (najwyżej tyle pozycji, ile wynosi limit) i dodaje jej utwory.
-    function bulkFromList(cmd, itemId, mode, title) {
-        if (bulk.running) {
-            notify(T.t("Trwa dodawanie (%1). Przerwij je w menu.", bulkProgress));
-            return;
-        }
-        var limit = Lyrion.limitOf(backend.queueLimit);
-        var q = [cmd, "items", 0, limit, "want_url:0"];
-        if (itemId !== "")
-            q.push("item_id:" + itemId);
-        notify(T.t("Wczytywanie: %1…", title));
-        call(q, function(res) {
-            var l = res && res.loop_loop ? res.loop_loop : [];
-            var ids = [];
-            for (var i = 0; i < l.length; i++)
-                if (Lyrion.isTrackItem(l[i]))
-                    ids.push(String(l[i].id));
-            var total = res && res.count !== undefined ? Number(res.count) : l.length;
-            if (!res)
-                notify(T.t(appWindow.errorText || "Brak połączenia z serwerem"));
-            else
-                bulkRun(cmd, ids, mode, title, total);
+    function bulkCall(cmd, then) {
+        Lyrion.request(bulk.playerId, cmd, function(res, error) {
+            if (error !== "") {
+                bulk.running = false;
+                pollSoon.restart();
+                notify(T.t(error));
+                return;
+            }
+            then(res);
         });
     }
 
-    // ids: identyfikatory utworów w kolejności odtwarzania.
-    function bulkRun(cmd, ids, mode, title, total) {
+    function queueLength(then) {
+        bulkCall(["status", "-", 1], function(res) {
+            then(res ? Number(res.playlist_tracks || 0) : 0);
+        });
+    }
+
+    // cmd: usługa (np. "soundcloud"), folderId: item_id folderu ("" = główny poziom),
+    // search: tekst wyszukiwania (lista wyników) albo "", picks: tablica pozycji albo null (wszystkie).
+    function bulkFolder(cmd, folderId, search, mode, title, picks) {
         if (bulk.running) {
-            notify(T.t("Trwa dodawanie (%1). Przerwij je w menu.", bulkProgress));
+            notify(T.t("Trwa dodawanie. Poczekaj chwilę."));
             return;
         }
-        var limit = Lyrion.limitOf(backend.queueLimit);
-        if (ids.length === 0) {
+        if (picks && picks.length === 0) {
             notify(T.t("Brak utworów do dodania"));
             return;
         }
-        if (ids.length > limit)
-            ids = ids.slice(0, limit);
+        var limit = Lyrion.limitOf(backend.queueLimit);
+        if (picks && picks.length > limit)
+            picks = picks.slice(0, limit);
         bulk.playerId = player.playerId;
-        bulk.cmd = cmd;
         bulk.mode = mode;
         bulk.title = title;
-        bulk.ids = ids;
-        bulk.pos = 0;
-        bulk.total = Math.max(total || 0, ids.length);
+        bulk.picks = picks ? picks : [];
         bulk.limit = limit;
-        bulk.added = 0;
-        bulk.failed = 0;
         bulk.cancelled = false;
         bulk.running = true;
-        var what = bulk.total > ids.length ? T.t("%1 z %2", ids.length, bulk.total) : String(ids.length);
+        bulk.step = T.t("wczytywanie");
         notify((mode === "play" ? T.t("Odtwarzanie: %1", title) : T.t("Dodawanie do kolejki: %1", title)) + "\n" +
-               T.t("Utwory: %1 (limit %2). Przerwij w menu.", what, limit));
+               (picks ? T.t("Zaznaczone utwory: %1", picks.length) : T.t("Najwyżej %1 utworów (limit w Ustawieniach).", limit)));
         if (mode === "play") {
             player.streamImage = "";
             openNowPlaying();
         }
-        bulkStep();
+        var add = [cmd, "playlist", "add"];
+        if (folderId !== "")
+            add.push("item_id:" + folderId);
+        if (search !== "")
+            add.push("search:" + search);
+        var go = function(base) {
+            bulk.base = base;
+            bulkCall(add, function() {
+                queueLength(function(n) {
+                    bulk.added = n - bulk.base;
+                    if (bulk.added <= 0) {
+                        bulk.running = false;
+                        notify(T.t("Brak utworów do dodania"));
+                        return;
+                    }
+                    if (player.shuffle > 0) {
+                        // Przy odtwarzaniu losowym pozycje w kolejce są wymieszane:
+                        // nie przycinamy i nie układamy.
+                        bulk.keep = bulk.added;
+                        if (bulk.mode === "play")
+                            bulkCall(["playlist", "index", 0], function() { bulkFinish(T.t("Odtwarzanie losowe: limit i kolejność pominięte.")); });
+                        else
+                            bulkFinish(T.t("Odtwarzanie losowe: limit i kolejność pominięte."));
+                        return;
+                    }
+                    if (bulk.picks.length > 0)
+                        bulkArrange();
+                    else {
+                        bulk.keep = Math.min(bulk.added, bulk.limit);
+                        bulkPlayThenTrim();
+                    }
+                });
+            });
+        };
+        if (mode === "play")
+            bulkCall(["playlist", "clear"], function() { go(0); });
+        else
+            queueLength(go);
     }
 
-    function bulkStep() {
-        if (bulk.cancelled || bulk.pos >= bulk.ids.length) {
-            bulkFinish();
-            return;
-        }
-        var how = bulk.mode === "play" && bulk.pos === 0 ? "play" : "add";
-        Lyrion.request(bulk.playerId, [bulk.cmd, "playlist", how, "item_id:" + bulk.ids[bulk.pos]], function(res, error) {
-            if (error !== "")
-                bulk.failed++;
-            else
-                bulk.added++;
-            bulk.pos++;
-            if (bulk.pos === 1 || bulk.pos % 10 === 0)
-                pollSoon.restart();
-            // Serwer nie odpowiada: nie męczymy go dalej.
-            if (bulk.failed >= 3 && bulk.added === 0)
-                bulk.cancelled = true;
-            bulkStep();
-        });
+    // Zaznaczone: przesuwa wybrane utwory na początek dodanego fragmentu, w wybranej kolejności.
+    function bulkArrange() {
+        var order = [];
+        for (var i = 0; i < bulk.added; i++)
+            order.push(i);
+        var picks = [];
+        for (i = 0; i < bulk.picks.length; i++)
+            if (bulk.picks[i] < bulk.added)
+                picks.push(bulk.picks[i]);
+        bulk.keep = picks.length;
+        var j = 0;
+        var next = function() {
+            if (bulk.cancelled || j >= picks.length) {
+                bulkPlayThenTrim();
+                return;
+            }
+            var cur = order.indexOf(picks[j]);
+            var to = j;
+            j++;
+            bulk.step = j + "/" + picks.length;
+            if (cur === to) {
+                next();
+                return;
+            }
+            order.splice(cur, 1);
+            order.splice(to, 0, picks[to]);
+            bulkCall(["playlist", "move", bulk.base + cur, bulk.base + to], next);
+        };
+        next();
+    }
+
+    function bulkPlayThenTrim() {
+        if (bulk.mode === "play")
+            bulkCall(["playlist", "index", 0], bulkTrim);
+        else
+            bulkTrim();
+    }
+
+    // Usuwa nadmiar z końca: wiele razy „usuń pozycję base+keep”, po kilka zapytań naraz
+    // (kolejność wykonania nie ma znaczenia, zawsze znika utwór z ogona).
+    function bulkTrim() {
+        var left = bulk.added - bulk.keep;
+        var batch = function() {
+            if (left <= 0 || bulk.cancelled || !bulk.running) {
+                if (bulk.running)
+                    bulkFinish("");
+                return;
+            }
+            var n = Math.min(6, left);
+            var pending = n;
+            left -= n;
+            bulk.step = T.t("porządkowanie");
+            for (var k = 0; k < n; k++)
+                Lyrion.request(bulk.playerId, ["playlist", "delete", bulk.base + bulk.keep], function() {
+                    pending--;
+                    if (pending === 0)
+                        batch();
+                });
+        };
+        batch();
     }
 
     function bulkCancel() {
@@ -305,18 +374,17 @@ PageStackWindow {
             bulk.cancelled = true;
     }
 
-    function bulkFinish() {
+    function bulkFinish(note) {
         var text;
-        if (bulk.cancelled && bulk.pos < bulk.ids.length)
-            text = T.t("Przerwano. Dodano %1 z %2.", bulk.added, bulk.ids.length);
-        else if (bulk.total > bulk.ids.length)
-            text = T.t("Dodano %1 z %2 utworów.", bulk.added, bulk.total) + " " + T.t("Limit: %1 (Ustawienia).", bulk.limit);
+        if (bulk.cancelled)
+            text = T.t("Przerwano. Kolejka może zawierać więcej utworów niż limit.");
+        else if (bulk.added > bulk.keep && bulk.picks.length === 0)
+            text = T.t("Dodano %1 z %2 utworów.", bulk.keep, bulk.added) + " " + T.t("Limit: %1 (Ustawienia).", bulk.limit);
         else
-            text = T.t("Dodano utwory: %1.", bulk.added);
-        if (bulk.failed > 0)
-            text += " " + T.t("Błędy: %1.", bulk.failed);
+            text = T.t("Dodano utwory: %1.", bulk.keep);
+        if (note)
+            text += " " + note;
         bulk.running = false;
-        bulk.ids = [];
         player.queueVersion++;
         pollSoon.restart();
         notify(text);
@@ -347,7 +415,7 @@ PageStackWindow {
     QueryDialog {
         id: aboutDialog
         icon: "file:///opt/lyrion-n9/lyrion-n9.png"
-        titleText: "Lyrion 0.6.4"
+        titleText: "Lyrion 0.6.5"
         message: T.t("Zaprojektowany i napisany przez Claude (Anthropic) wspólnie ze smyhu dla Nokii N9.\n\nPilot i odtwarzacz dla serwera Lyrion Music Server.\nOdtwarzacz: squeezelite (Ralph Irving, GPL-3).")
         acceptButtonText: T.t("Zamknij")
     }

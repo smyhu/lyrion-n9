@@ -21,8 +21,8 @@ with smyhu.
 - **Whole lists from services:** press and hold a folder such as SoundCloud Likes, Hot or
   Newest for Play / Add to queue / Details. Inside a list, the menu offers Play all, Add all
   to queue and Select tracks (tap tracks in the order you want them played). A setting caps
-  how many tracks are added at once (default 100); progress is shown and adding can be
-  stopped from the menu.
+  how many tracks are added at once (default 50). Whole lists are added in one server request, like playlists, and can be
+  stopped from the menu while the queue is being tidied.
 - **Players:** a list of all players on the server; the app remembers the last one and, on
   start, switches to a player that is already playing.
 - **Languages:** Polish, English, German, Spanish, Italian and French, following the phone
@@ -37,11 +37,11 @@ HTTP JSON-RPC on the home network (port 9000).
 
 ## Install
 
-Copy `dist/lyrion-n9_0.6.4_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
+Copy `dist/lyrion-n9_0.6.5_armel.deb` to `/home/developer` on the phone (`/tmp` on the N9 has
 only 4 MB), then as root (developer mode):
 
 ```
-aegis-dpkg -i /home/developer/lyrion-n9_0.6.4_armel.deb
+aegis-dpkg -i /home/developer/lyrion-n9_0.6.5_armel.deb
 ```
 
 Requirements: PySide and alsa-utils, both present on a standard PR1.3 phone.
@@ -84,11 +84,11 @@ Zaprojektowana i napisana przez Claude (Anthropic) wspólnie ze smyhu.
 - **Całe listy z usług:** przytrzymanie folderu (np. SoundCloud Likes, Hot, Newest) daje
   Odtwórz / Dodaj do kolejki / Szczegóły. W liście menu ma Odtwórz wszystkie, Dodaj
   wszystkie i Zaznacz utwory (w wybranej kolejności). Limit utworów dodawanych naraz
-  ustawisz w Ustawieniach (domyślnie 100); dodawanie można przerwać z menu.
+  ustawisz w Ustawieniach (domyślnie 50). Cała lista trafia do kolejki jednym poleceniem, jak playlisty.
 - **Odtwarzacze:** lista wszystkich odtwarzaczy; aplikacja pamięta ostatni wybrany.
 - **Sześć języków**, zależnie od języka telefonu.
 
-Instalacja: skopiuj `dist/lyrion-n9_0.6.4_armel.deb` do `/home/developer` w telefonie i jako
-root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.6.4_armel.deb`.
+Instalacja: skopiuj `dist/lyrion-n9_0.6.5_armel.deb` do `/home/developer` w telefonie i jako
+root wpisz `aegis-dpkg -i /home/developer/lyrion-n9_0.6.5_armel.deb`.
 
 Licencja: MIT (plik `LICENSE`); wbudowany squeezelite jest na licencji GPL-3.0.

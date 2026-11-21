@@ -105,7 +105,7 @@ class Backend(QObject):
 
     # Ile utworow najwyzej dodawac naraz z jednej listy (np. SoundCloud Likes).
     def _queuelimit(self):
-        return unicode(self._get('queuelimit', '100'))
+        return unicode(self._get('queuelimit', '50'))
 
     def _set_queuelimit(self, value):
         self._settings.setValue('queuelimit', value.strip())

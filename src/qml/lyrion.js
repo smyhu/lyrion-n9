@@ -144,6 +144,6 @@ function isTrackItem(it) {
 function limitOf(value) {
     var n = parseInt(value, 10);
     if (isNaN(n) || n < 1)
-        n = 100;
+        n = 50;
     return n > 1000 ? 1000 : n;
 }

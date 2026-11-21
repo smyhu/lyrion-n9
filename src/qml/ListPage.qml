@@ -342,31 +342,30 @@ Page {
 
     // --- Całe listy i zaznaczanie (usługi: SoundCloud itp.) ---
 
-    // Utwory z wczytanej listy: zaznaczone (w kolejności zaznaczania) albo wszystkie.
-    function trackIds(selectedOnly) {
-        var picked = [], i;
-        for (i = 0; i < items.count; i++) {
+    // Pozycje zaznaczonych utworów wśród utworów listy, w kolejności zaznaczania.
+    // (Serwer dodaje folder w kolejności listy, pomijając pozycje, które nie są utworami.)
+    function pickedPositions() {
+        var picked = [], rank = 0;
+        for (var i = 0; i < items.count; i++) {
             var it = items.get(i);
             if (!it.track)
                 continue;
-            if (!selectedOnly)
-                picked.push(it.value);
-            else if (it.sel > 0)
-                picked[it.sel - 1] = it.value;
+            if (it.sel > 0)
+                picked[it.sel - 1] = rank;
+            rank++;
         }
         return picked;
     }
 
     function runAll(mode) {
-        var total = list.totalCount > items.count ? list.totalCount : list.trackCount;
-        appWindow.bulkRun(list.cmd, trackIds(false), mode, list.heading, total);
+        appWindow.bulkFolder(list.cmd, list.itemId, list.term, mode, list.heading, null);
     }
 
     function runSelected(mode) {
-        var ids = trackIds(true);
+        var picks = pickedPositions();
         list.selecting = false;
         clearSelection();
-        appWindow.bulkRun(list.cmd, ids, mode, list.heading, ids.length);
+        appWindow.bulkFolder(list.cmd, list.itemId, list.term, mode, list.heading, picks);
     }
 
     function toggle(i) {
@@ -431,11 +430,11 @@ Page {
         MenuLayout {
             MenuItem {
                 text: T.t("Odtwórz")
-                onClicked: appWindow.bulkFromList(list.cmd, folderMenu.row.value, "play", folderMenu.row.title)
+                onClicked: appWindow.bulkFolder(list.cmd, String(folderMenu.row.value), "", "play", folderMenu.row.title, null)
             }
             MenuItem {
                 text: T.t("Dodaj do kolejki")
-                onClicked: appWindow.bulkFromList(list.cmd, folderMenu.row.value, "add", folderMenu.row.title)
+                onClicked: appWindow.bulkFolder(list.cmd, String(folderMenu.row.value), "", "add", folderMenu.row.title, null)
             }
             MenuItem {
                 text: T.t("Szczegóły")

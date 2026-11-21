@@ -66,7 +66,7 @@ Page {
                 wrapMode: Text.WordWrap
                 font.pixelSize: 18
                 color: "#808080"
-                text: T.t("Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, zalecane 100.")
+                text: T.t("Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, domyślnie 50.")
             }
             Button {
                 width: parent.width
@@ -129,7 +129,7 @@ Page {
                 wrapMode: Text.WordWrap
                 font.pixelSize: 18
                 color: "#808080"
-                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.6.4", backend.macAddress)
+                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.6.5", backend.macAddress)
             }
         }
     }
