@@ -129,7 +129,7 @@ Page {
                 wrapMode: Text.WordWrap
                 font.pixelSize: 18
                 color: "#808080"
-                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.6.3", backend.macAddress)
+                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.6.4", backend.macAddress)
             }
         }
     }
