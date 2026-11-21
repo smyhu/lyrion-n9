@@ -12,7 +12,7 @@ Page {
     tools: ToolBarLayout {
         ToolIcon { iconId: "toolbar-back"; onClicked: pageStack.pop() }
         MiniPlayer { }
-        ToolIcon { iconId: "toolbar-view-menu"; onClicked: mainMenu.open() }
+        ToolIcon { iconId: "toolbar-view-menu"; onClicked: list.cmd !== "" ? listMenu.open() : mainMenu.open() }
     }
 
     property string kind: ""        // artists, albums, tracks, tracksall, playlists, playlisttracks, favorites, radios, apps, opml, search,
@@ -28,6 +28,10 @@ Page {
     property string message: ""
     property bool sections: false
     property string shuffleMode: "" // jak odtworzyć losowo: "random", "load"
+    property int totalCount: 0      // OPML: ile pozycji ma lista na serwerze
+    property int trackCount: 0      // OPML: ile wczytanych pozycji to utwory
+    property bool selecting: false  // tryb zaznaczania utworów
+    property int selCount: 0
 
     ListModel { id: items }
 
@@ -43,6 +47,8 @@ Page {
             arrow: o.arrow ? true : false,
             playable: o.playable ? true : false,
             details: o.details ? true : false,
+            track: o.track ? true : false,
+            sel: 0,
             section: list.sections ? Lyrion.sectionOf(o.title) : ""
         });
     }
@@ -58,6 +64,9 @@ Page {
     function load() {
         items.clear();
         list.message = "";
+        list.selecting = false;
+        list.selCount = 0;
+        list.trackCount = 0;
         if (kind === "favorites")
             cmd = "favorites";
         if (kind === "favorites" || kind === "opml") {
@@ -225,8 +234,11 @@ Page {
                       image: Lyrion.imageUrl(it.image || it.icon || "", 80), showImage: anyImage,
                       action: isSearch ? "opmlsearch" : (single || !deeper ? (it.isaudio == 1 ? "opmlplay" : "") : "opml"),
                       value: it.id, arrow: deeper && it.isaudio != 1, playable: it.isaudio == 1,
-                      details: single && deeper });
+                      details: single && deeper, track: single });
+                if (single)
+                    list.trackCount++;
             }
+            list.totalCount = res && res.count !== undefined ? Number(res.count) : l.length;
             done(res, list.kind === "favorites" ? T.t("Brak ulubionych. Dodaj je gwiazdką na ekranie odtwarzania.") : "");
         });
     }
@@ -238,6 +250,10 @@ Page {
     }
 
     function open(row) {
+        if (list.selecting) {
+            toggle(row.index);
+            return;
+        }
         var a = row.action, v = row.value;
         if (a === "artist")
             appWindow.openList({ kind: "albums", heading: row.title, param: "artist_id:" + v });
@@ -274,6 +290,17 @@ Page {
     // Przytrzymanie palca: album, lista, folder -> odtwórz całość;
     // pozycja z usługi (SoundCloud, radio) -> menu jak w Lyrion.
     function hold(row) {
+        if (list.selecting) {
+            if (list.selCount > 0)
+                selMenu.open();
+            return;
+        }
+        // Folder w usłudze (np. SoundCloud: Likes, Hot, Newest): cała lista.
+        if (row.action === "opml" && !row.playable && list.cmd !== "") {
+            folderMenu.row = { title: row.title, value: row.value };
+            folderMenu.open();
+            return;
+        }
         if (!row.playable)
             return;
         if (row.action === "album")
@@ -312,6 +339,207 @@ Page {
         }
     }
 
+
+    // --- Całe listy i zaznaczanie (usługi: SoundCloud itp.) ---
+
+    // Pozycje zaznaczonych utworów wśród utworów listy, w kolejności zaznaczania.
+    // (Serwer dodaje folder w kolejności listy, pomijając pozycje, które nie są utworami.)
+    function pickedPositions() {
+        var picked = [], rank = 0;
+        for (var i = 0; i < items.count; i++) {
+            var it = items.get(i);
+            if (!it.track)
+                continue;
+            if (it.sel > 0)
+                picked[it.sel - 1] = rank;
+            rank++;
+        }
+        return picked;
+    }
+
+    function runAll(mode) {
+        appWindow.bulkFolder(list.cmd, list.itemId, list.term, mode, list.heading, null);
+    }
+
+    function runSelected(mode) {
+        var picks = pickedPositions();
+        list.selecting = false;
+        clearSelection();
+        appWindow.bulkFolder(list.cmd, list.itemId, list.term, mode, list.heading, picks);
+    }
+
+    function toggle(i) {
+        var it = items.get(i);
+        if (!it.track)
+            return;
+        if (it.sel > 0) {
+            var n = it.sel;
+            for (var j = 0; j < items.count; j++)
+                if (items.get(j).sel > n)
+                    items.setProperty(j, "sel", items.get(j).sel - 1);
+            items.setProperty(i, "sel", 0);
+            list.selCount--;
+        } else {
+            list.selCount++;
+            items.setProperty(i, "sel", list.selCount);
+        }
+    }
+
+    // „Wszystkie”: dopisuje niezaznaczone w kolejności listy; gdy wszystkie są już zaznaczone, czyści.
+    function selectAll() {
+        if (list.selCount === list.trackCount) {
+            clearSelection();
+            return;
+        }
+        for (var i = 0; i < items.count; i++) {
+            var it = items.get(i);
+            if (it.track && it.sel === 0) {
+                list.selCount++;
+                items.setProperty(i, "sel", list.selCount);
+            }
+        }
+    }
+
+    function clearSelection() {
+        for (var i = 0; i < items.count; i++)
+            if (items.get(i).sel !== 0)
+                items.setProperty(i, "sel", 0);
+        list.selCount = 0;
+    }
+
+    function showDetails(row) {
+        appWindow.call([list.cmd, "items", 0, 1, "want_url:0", "item_id:" + row.value], function(res) {
+            if (!res) {
+                appWindow.notify(T.t(appWindow.errorText || "Brak połączenia z serwerem"));
+                return;
+            }
+            var count = res.count !== undefined ? Number(res.count) : 0;
+            var limit = Lyrion.limitOf(backend.queueLimit);
+            var text = T.t("Pozycje na liście: %1", count) + "\n" + T.t("Limit dodawania naraz: %1", limit);
+            if (count > limit)
+                text += "\n\n" + T.t("„Odtwórz” i „Dodaj do kolejki” wezmą pierwsze %1. Limit zmienisz w Ustawieniach.", limit);
+            detailsDialog.titleText = row.title;
+            detailsDialog.message = text;
+            detailsDialog.open();
+        });
+    }
+
+    ContextMenu {
+        id: folderMenu
+        property variant row: ({})
+        MenuLayout {
+            MenuItem {
+                text: T.t("Odtwórz")
+                onClicked: appWindow.bulkFolder(list.cmd, String(folderMenu.row.value), "", "play", folderMenu.row.title, null)
+            }
+            MenuItem {
+                text: T.t("Dodaj do kolejki")
+                onClicked: appWindow.bulkFolder(list.cmd, String(folderMenu.row.value), "", "add", folderMenu.row.title, null)
+            }
+            MenuItem {
+                text: T.t("Szczegóły")
+                onClicked: list.showDetails(folderMenu.row)
+            }
+        }
+    }
+
+    ContextMenu {
+        id: selMenu
+        MenuLayout {
+            MenuItem { text: T.t("Odtwórz zaznaczone (%1)", list.selCount); onClicked: list.runSelected("play") }
+            MenuItem { text: T.t("Dodaj zaznaczone (%1)", list.selCount); onClicked: list.runSelected("add") }
+        }
+    }
+
+    Menu {
+        id: listMenu
+        MenuLayout {
+            MenuItem {
+                text: T.t("Przerwij dodawanie (%1)", appWindow.bulkProgress)
+                visible: appWindow.bulkRunning
+                onClicked: appWindow.bulkCancel()
+            }
+            MenuItem {
+                text: T.t("Odtwórz wszystkie")
+                visible: list.trackCount > 1 && !list.selecting
+                onClicked: list.runAll("play")
+            }
+            MenuItem {
+                text: T.t("Dodaj wszystkie do kolejki")
+                visible: list.trackCount > 1 && !list.selecting
+                onClicked: list.runAll("add")
+            }
+            MenuItem {
+                text: list.selecting ? T.t("Zakończ zaznaczanie") : T.t("Zaznacz utwory")
+                visible: list.trackCount > 1
+                onClicked: {
+                    if (list.selecting)
+                        list.clearSelection();
+                    list.selecting = !list.selecting;
+                }
+            }
+            MenuItem { text: T.t("Wybierz odtwarzacz"); onClicked: appWindow.choosePlayer() }
+            MenuItem { text: T.t("Ustawienia"); onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml")) }
+        }
+    }
+
+    QueryDialog {
+        id: detailsDialog
+        acceptButtonText: "OK"
+    }
+
+    // Pasek trybu zaznaczania: liczba zaznaczonych i przyciski.
+    Rectangle {
+        id: selBar
+        z: 10
+        anchors.bottom: parent.bottom
+        width: parent.width
+        height: list.selecting ? 136 : 0
+        visible: list.selecting
+        color: "#e0101010"
+        Label {
+            x: 16
+            y: 10
+            width: parent.width - 32
+            elide: Text.ElideRight
+            font.pixelSize: 22
+            color: "#c0c0c0"
+            text: list.selCount > 0 ? T.t("Zaznaczono: %1 (odtwarzanie wg numerów)", list.selCount)
+                                    : T.t("Stuknij utwory w wybranej kolejności")
+        }
+        Row {
+            x: 12
+            y: 52
+            spacing: 8
+            Button {
+                width: 110
+                text: list.selCount === list.trackCount && list.selCount > 0 ? T.t("Żadne") : T.t("Wszystkie")
+                platformStyle: ButtonStyle { fontPixelSize: 20 }
+                onClicked: list.selectAll()
+            }
+            Button {
+                width: 110
+                text: T.t("Odtwórz")
+                enabled: list.selCount > 0
+                platformStyle: ButtonStyle { fontPixelSize: 20 }
+                onClicked: list.runSelected("play")
+            }
+            Button {
+                width: 110
+                text: T.t("Dodaj")
+                enabled: list.selCount > 0
+                platformStyle: ButtonStyle { fontPixelSize: 20 }
+                onClicked: list.runSelected("add")
+            }
+            Button {
+                width: 110
+                text: T.t("Anuluj")
+                platformStyle: ButtonStyle { fontPixelSize: 20 }
+                onClicked: { list.clearSelection(); list.selecting = false; }
+            }
+        }
+    }
+
     function shufflePlay() {
         if (shuffleMode === "random") {
             play(["randomplay", "tracks"]);
@@ -329,6 +557,7 @@ Page {
     ListView {
         id: view
         anchors.fill: parent
+        anchors.bottomMargin: selBar.height
         model: items
         clip: true
         cacheBuffer: 400
@@ -372,8 +601,11 @@ Page {
             image: model.image
             showImage: model.showImage
             arrow: model.arrow
-            onClicked: list.open(model)
-            onPressAndHold: list.hold(model)
+            mark: model.sel
+            onClicked: list.open({ index: index, title: model.title, action: model.action, value: model.value,
+                                   image: model.image, playable: model.playable, details: model.details })
+            onPressAndHold: list.hold({ index: index, title: model.title, action: model.action, value: model.value,
+                                        image: model.image, playable: model.playable, details: model.details })
         }
     }
 

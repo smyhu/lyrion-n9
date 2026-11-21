@@ -1,6 +1,7 @@
 import QtQuick 1.1
 import com.nokia.meego 1.0
 import "i18n.js" as T
+import "lyrion.js" as Lyrion
 
 Page {
     objectName: "settings"
@@ -53,6 +54,20 @@ Page {
                 text: backend.newCount
                 inputMethodHints: Qt.ImhDigitsOnly
             }
+            Label { text: T.t("Limit utworów dodawanych naraz z listy"); color: "#a0a0a0"; font.pixelSize: 20 }
+            TextField {
+                id: limitField
+                width: parent.width
+                text: backend.queueLimit
+                inputMethodHints: Qt.ImhDigitsOnly
+            }
+            Label {
+                width: parent.width
+                wrapMode: Text.WordWrap
+                font.pixelSize: 18
+                color: "#808080"
+                text: T.t("Dotyczy „Odtwórz” i „Dodaj do kolejki” dla całych list (np. SoundCloud: Likes, Hot). Od 1 do 1000, domyślnie 50.")
+            }
             Button {
                 width: parent.width
                 text: T.t("Zapisz")
@@ -62,7 +77,9 @@ Page {
                     backend.port = portField.text;
                     backend.playerName = nameField.text;
                     backend.newCount = newField.text;
-                                        if (restart) {
+                    backend.queueLimit = String(Lyrion.limitOf(limitField.text));
+                    limitField.text = backend.queueLimit;
+                    if (restart) {
                         backend.stopPlayer();
                         backend.startPlayer();
                     }
@@ -112,7 +129,7 @@ Page {
                 wrapMode: Text.WordWrap
                 font.pixelSize: 18
                 color: "#808080"
-                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.5", backend.macAddress)
+                text: T.t("Lyrion dla N9 %1 · odtwarzacz: squeezelite 2.0 (GPL-3) · adres MAC: %2", "0.6.5", backend.macAddress)
             }
         }
     }
